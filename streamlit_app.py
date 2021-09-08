@@ -4,6 +4,10 @@ import altair as alt
 import streamlit as st
 import hashlib
 
+# use full width of the page
+st.set_page_config(layout="wide")
+
+# change background
 st.markdown(
     """
     <style>
@@ -26,6 +30,17 @@ def check_hashes(password,hashed_text):
         return hashed_text
     return False
 
+# for a better implementation see:
+# https://blog.jcharistech.com/2020/05/30/how-to-add-a-login-section-to-streamlit-blog-app/
+#
+login = st.empty()
+pw=login.text_input("password", value="", type="password")
+if make_hashes(pw) == st.secrets["PAGE_PASSWORD"]:
+    #login successful
+    login.empty()
+else:
+    st.stop()
+
 # let's load some data
 source = pd.DataFrame(np.cumsum(np.random.randn(100, 3), 0).round(2),
                     columns=['alcohol', 'beer', 'coke'], index=pd.RangeIndex(100, name='x'))
@@ -40,14 +55,7 @@ line_chart = alt.Chart(source).mark_line(interpolate='basis').encode(
     title='Sales of consumer goods'
 )
 
-# for a better implementation see:
-# https://blog.jcharistech.com/2020/05/30/how-to-add-a-login-section-to-streamlit-blog-app/
-#
-pw=st.text_input("Password:", value="", type="password")
-if make_hashes(pw) == st.secrets["PAGE_PASSWORD"]:
-    st.text("login successful")
-else:
-    st.stop()
+
 
 add_selectbox = st.sidebar.selectbox("Actions",
     ("Analyse Data", "Upload Files","Sign Up","About","Contact"))
