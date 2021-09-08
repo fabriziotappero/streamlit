@@ -8,11 +8,12 @@ st.markdown(
     """
     <style>
     .reportview-container {
-        background: url("https://unsplash.com/photos/CSeCKeW4TM0/download?force=true&w=1920");
-        background-size: 100% 100%;
+        background: url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
+        background-size: cover;
     }
    .sidebar .sidebar-content {
-        background: url("https://unsplash.com/photos/CSeCKeW4TM0/download?force=true&w=1920");background-size: 100% 100%;
+        background: url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
+        background-size: cover;
     }
     </style>
     """,unsafe_allow_html=True)
@@ -48,8 +49,21 @@ if make_hashes(pw) == st.secrets["PAGE_PASSWORD"]:
 else:
     st.stop()
 
+add_selectbox = st.sidebar.selectbox("Actions",
+    ("Analyse Data", "Upload Files","Sign Up","About","Contact"))
+
+st.altair_chart(line_chart, use_container_width=True)
 
 
+with st.sidebar:
+    # slider for hour past midnight
+    hour_to_filter = st.slider(label='Hours past midnight:', min_value=0, max_value=22, step=2, value=2)
 
-st.altair_chart(line_chart)
+# setup a 4 column layout
+col1, col2, col3, col4 = st.columns(4)
+
+col1.text("col1")
+col2.text("col2")
+col3.text("col3")
+col4.text("col4")
 
