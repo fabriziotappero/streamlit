@@ -38,7 +38,7 @@ def dms2dd(s):
 def get_gdrive_spreadsheet(doc_id, sheet_id, file_name):
     sheet_url = f'https://docs.google.com/spreadsheets/d/{doc_id}/export?format=csv&gid={sheet_id}'
     df = pd.read_csv(sheet_url)
-    df.to_csv(file_name)
+    #df.to_csv(file_name)
     return df
 
 # download any google drive file
@@ -46,8 +46,6 @@ def get_gdrive_spreadsheet(doc_id, sheet_id, file_name):
 def get_gdrive_file(_id, file_name):
     gdown.download('https://drive.google.com/uc?id=' + _id, file_name,quiet=True)
     print("loading database file from the cloud...")
-
-
 
 ##### BEGIN OF THE CODE
 
@@ -59,14 +57,13 @@ st.markdown(
     """
     <style>
     .reportview-container {
-        background: url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
+        background: linear-gradient(rgba(255,255,255,.8), rgba(255,255,255,.8)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
         background-size: cover;
     }
    .sidebar .sidebar-content {
-        background: url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
+        background: linear-gradient(rgba(255,255,255,.8), rgba(255,255,255,.8)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
         background-size: cover;
     }
-
     </style>
     """,unsafe_allow_html=True)
 
@@ -82,7 +79,8 @@ else:
     #login not successful
     st.stop()
 
-st.title('BALUERO DATA VIEWER')
+_, col2, _ = st.columns(3)
+col2.title('BALUERO DATA VIEWER')
 
 # download spreadsheet index file from Google Drive
 # in this files are stored all IDs for csv files
