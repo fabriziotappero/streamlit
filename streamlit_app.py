@@ -94,7 +94,7 @@ col1, col2, col3, col4 = st.columns(4)
 
 # slider to select time to show
 #start_hour = col1.slider(label='Select time to show', min_value=0, max_value=22, step=2, value=2)
-set_time = col1.slider('Set time to process', value=time(3, 00, 00),
+set_time = col1.slider('Set time to process', value=time(4, 00, 00),
                               min_value=time(00, 00, 00),
                               max_value=time(22, 00, 00),
                               step=timedelta(hours=2),
