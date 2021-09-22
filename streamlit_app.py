@@ -6,9 +6,8 @@ import hashlib
 
 import gdown
 from datetime import date, datetime, time, timedelta
-import re, os
-
-os.environ['TZ'] = 'UTC'
+import re
+import pytz
 
 ### various functions
 
@@ -95,15 +94,13 @@ df = get_gdrive_spreadsheet(doc_id, sheet_id,'gdrive_index.csv')
 col1, col2, col3, col4 = st.columns(4)
 
 # slider to select time to show
-#start_hour = col1.slider(label='Select time to show', min_value=0, max_value=22, step=2, value=2)
-
-
-set_time = col1.slider('Set begin time', value=time(0,0, 0),
-                              min_value=time(0, 0, 0),
-                              max_value=time(23, 0, 0),
-                              step=timedelta(hours=2),
-                              format='LT')
-start_hour = set_time.hour
+start_hour = col1.slider(label='Select hour past midnight', min_value=0, max_value=22, step=2, value=2)
+# set_time = col1.slider('Set begin time', value=time(9,0,0),
+#                               min_value=time(0, 1, 0),
+#                               max_value=time(22, 0, 0),
+#                               step=timedelta(hours=2),
+#                               format='HH:mm')
+# start_hour = set_time.hour
 
 # work out the number of samples to load for the selected portion of time
 start_sample = int(start_hour/2 * 3600) # start samples
