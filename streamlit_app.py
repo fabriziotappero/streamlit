@@ -6,7 +6,9 @@ import hashlib
 
 import gdown
 from datetime import date, datetime, time, timedelta
-import re
+import re, os
+
+os.environ['TZ'] = 'UTC'
 
 ### various functions
 
@@ -94,11 +96,13 @@ col1, col2, col3, col4 = st.columns(4)
 
 # slider to select time to show
 #start_hour = col1.slider(label='Select time to show', min_value=0, max_value=22, step=2, value=2)
-set_time = col1.slider('Set begin time', value=time(00, 00, 00),
-                              min_value=time(00, 00, 00),
-                              max_value=time(22, 00, 00),
+
+
+set_time = col1.slider('Set begin time', value=time(0,0, 0),
+                              min_value=time(0, 0, 0),
+                              max_value=time(23, 0, 0),
                               step=timedelta(hours=2),
-                              format='H:mm')
+                              format='LT')
 start_hour = set_time.hour
 
 # work out the number of samples to load for the selected portion of time
