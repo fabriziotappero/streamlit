@@ -2,6 +2,9 @@ streamlit
 pandas
 numpy
 altair
+gdown
+hashlib
+
 
 
 
