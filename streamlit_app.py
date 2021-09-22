@@ -57,11 +57,11 @@ st.markdown(
     """
     <style>
     .reportview-container {
-        background: linear-gradient(rgba(255,255,255,.8), rgba(255,255,255,.8)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
+        background: linear-gradient(rgba(255,255,255,1), rgba(255,255,255,1)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
         background-size: cover;
     }
    .sidebar .sidebar-content {
-        background: linear-gradient(rgba(255,255,255,.8), rgba(255,255,255,.8)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
+        background: linear-gradient(rgba(255,255,255,1), rgba(255,255,255,1)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
         background-size: cover;
     }
     </style>
