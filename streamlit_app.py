@@ -35,38 +35,25 @@ def dms2dd(s):
         dd*= -1
     return dd
 
-# download google drive spreadsheet file
+# download a google drive spreadsheet file
 def get_gdrive_spreadsheet(doc_id, sheet_id, file_name):
     sheet_url = f'https://docs.google.com/spreadsheets/d/{doc_id}/export?format=csv&gid={sheet_id}'
     df = pd.read_csv(sheet_url)
     #df.to_csv(file_name)
     return df
 
-# download any google drive file
-@st.cache(suppress_st_warning=True)
+# download a google drive file
+#@st.cache(suppress_st_warning=True)
 def get_gdrive_file(_id, file_name):
+    print("loading gdrive file ID: ",_id)
     gdown.download('https://drive.google.com/uc?id=' + _id, file_name,quiet=True)
-    print("loading database file from the cloud...")
+    
+    
 
 ##### BEGIN OF THE CODE
 
 # use full width of the page
 st.set_page_config(layout="wide")
-
-# change html background
-st.markdown(
-    """
-    <style>
-    .reportview-container {
-        background: linear-gradient(rgba(255,255,255,1), rgba(255,255,255,1)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
-        background-size: cover;
-    }
-   .sidebar .sidebar-content {
-        background: linear-gradient(rgba(255,255,255,1), rgba(255,255,255,1)), url("https://unsplash.com/photos/GyDktTa0Nmw/download?force=true&w=1920");
-        background-size: cover;
-    }
-    </style>
-    """,unsafe_allow_html=True)
 
 # input password field
 # for a better implementation see:
@@ -95,19 +82,19 @@ col1, col2, col3, col4 = st.columns(4)
 
 # slider to select time to show
 #start_hour = col1.slider(label='Select hour past midnight', min_value=0, max_value=22, step=2, value=2)
-set_time = col1.slider('Set begin time', value=time(4,0,0),
+set_time = col1.slider('Set Time', value=time(2,0,0),
                               min_value=time(0, 0, 0),
-                              max_value=time(22, 0, 0),
-                              step=timedelta(hours=2),
+                              max_value=time(23, 0, 0),
+                              step=timedelta(hours=1),
                               format='HH:mm')
 start_hour = set_time.hour
 
 # work out the number of samples to load for the selected portion of time
-start_sample = int(start_hour/2 * 3600) # start samples
-number_samples = 3600*2/2 # number of samples equivament to 2h 
+start_sample = int(start_hour * 3600) # start samples
+number_samples = 3600 # number of samples equivament to 1h 
 
 # select date
-new_date = col2.date_input('Pick a day', date(2021,8,15))
+new_date = col2.date_input('Pick a Day', date(2021,11,1))
 
 # setup a 4 column layout
 #col1, col2 = st.columns(2)
@@ -115,7 +102,7 @@ new_date = col2.date_input('Pick a day', date(2021,8,15))
 # data info text
 txtbox3 = col3.empty()
 txtbox4 = col4.empty()
-txtbox3.text('Showing 2h worth of data from ' + str(start_hour) + ':00')
+#txtbox3.text('Showing 3600 samples worth of data from ' + str(start_hour) + ':00')
 
 # Define local file path (only used with a local csv database)
 #B4B_MSG_FILE_LOC  = ('../logs/SystemMea_dp_' + new_date.strftime("%Y_%m_%d") + '.zip')
@@ -123,8 +110,8 @@ txtbox3.text('Showing 2h worth of data from ' + str(start_hour) + ':00')
 
 # search for Google Drive ID for the 3 files to download
 
-# Bound4Blue Allarm File
-file_name = 'SystemAlarms_dp_' + new_date.strftime("%Y_%m_%d") + '.zip'
+# Bound4Blue Alarm File
+file_name = 'alarms_' + new_date.strftime("%Y_%m_%d") + '.zip'
 for i,x in enumerate(df['b4b_alarm_file']):
     if file_name in str(x):
         # found element at position i
@@ -144,11 +131,11 @@ for i,x in enumerate(df['kyma_msg_file']):
         kyma_msg_file_id =''
 
 # Bound4Blue Message File
-file_name = 'SystemMea_dp_' + new_date.strftime("%Y_%m_%d") + '.zip'
+file_name = 'message_' + new_date.strftime("%Y_%m_%d") + '.zip'
 for i,x in enumerate(df['b4b_msg_file']):
     if file_name in str(x):
         # found element at position i
-        b4b_msg_file_id = df['b4b_msg_file_id'][i]
+        b4b_msg_file_id = df['b4b_msg_file_id'][i] 
         break
     else:
         b4b_msg_file_id =''
@@ -163,70 +150,74 @@ if b4b_msg_file_id:
 
 # warn user if data is not available for that specific date
 if b4b_alarm_file_id=='' or kyma_msg_file_id=='' or b4b_msg_file_id=='':
-    #txtbox4.text('Data for ' + new_date.strftime("%Y-%m-%d") + ' is not available.')
-    msg = 'Data for ' + new_date.strftime("%Y-%m-%d") + ' is not available.'
+    msg = 'WARNING. DATA FOR ' + new_date.strftime("%Y-%m-%d") + ' IS NOT AVAILABLE.'
     msg = '<p style="color:Red;">'+msg+'</p>'
     txtbox4.markdown(msg, unsafe_allow_html=True)
-
-
+    txtbox4.markdown(msg+'Loading last available data.', unsafe_allow_html=True)
 
     print('ERROR loading csv files')
 else:
-    txtbox4.text('Remote data Loaded successfully.')
-
+    txtbox4.text('REMOTE DATA LOADED SUCCESSFULLY.')
 
 # setup a 2 column layout
 col1, col2 = st.columns(2)
 
 # show a partial data table starting from the selected time
-data = load_data('tmp/b4b_msg_db.zip', start_sample, number_samples) # load selected portion of data 
-col1.dataframe(data,height=500) # show table
-
-#if st.checkbox('Plot table data', value=False):
-#    chart_data = pd.DataFrame(data,columns=['awa[deg]', 'aws[kn]', 'esail_position[deg]','mode','suctionfan[rpm]'])
-#    col1.line_chart(chart_data)
+if col1.checkbox('Show Raw Data Table', value = True):
+    data = load_data('tmp/b4b_msg_db.zip', start_sample, number_samples) # load selected portion of data 
+    col1.text('Showing 1h worth of data')
+    col1.dataframe(data,height=500) # show table
 
 # show a map with lat/long vessel position
-start_sample = int(start_hour/15 * 3600) # start samples
-number_samples = 3600*2/15 # number of samples equivament to 2h 
-data = load_data('tmp/kyma_msg_db.zip',start_sample,number_samples)
-data.rename({'latitude (text)':'lat','longitude (text)':'lon'}, axis='columns',inplace=True)
-data['lat'] = data['lat'].apply(dms2dd)
-data['lon'] = data['lon'].apply(dms2dd)
-col2.map(data)
-#col2.dataframe(data,height=500) # show table
+if col2.checkbox('Show Map', value = True):
+    # load lat/long data from Kyma files
+    if True:
+        start_sample = 0 # start samples
+        number_samples = 3600*24 # number of samples equivament to 24h 
+        data = load_data('tmp/b4b_msg_db.zip',start_sample,number_samples)
+        data.rename({'lat_deg':'lat','long_deg':'lon'}, axis='columns',inplace=True)
+        col2.text('Showing 24h worth of vessel navigation data (B4B data)')
+        col2.map(data)
+        #col2.dataframe(data,height=500) # show table
 
-# TEST PLOT some data
-#st.text('TEST: Whole day')
-#data_w = load_data(DATA1_LOCATION,0, 3600*24/2) # load whole data 
-#chart_data_w = pd.DataFrame(data_w,columns=['awa[deg]', 'aws[kn]', 'esail_position[deg]','mode','suctionfan[rpm]'])
-#st.line_chart(chart_data_w)
+    # load lat/long data from Kyma files
+    if False:
+        start_sample = int(start_hour/15 * 3600) # start samples
+        number_samples = 3600*24/15 # number of samples equivament to 24sh 
+        data = load_data('tmp/kyma_msg_db.zip',start_sample,number_samples)
+        data.rename({'latitude (text)':'lat','longitude (text)':'lon'}, axis='columns',inplace=True)
+        data['lat'] = data['lat'].apply(dms2dd)
+        data['lon'] = data['lon'].apply(dms2dd)
+        col2.text('Showing 24h worth of vessel navigation data (KYMA data)')
+        col2.map(data)
+        #col2.dataframe(data,height=500) # show table
+
 
 # load a portion, just 2h, of the data starting from the slider time
-start_sample = int(start_hour/2 * 3600) # start samples
-number_samples = 3600*2/2 # number of samples equivament to 2h 
+start_sample = int(start_hour * 3600) # start samples
+number_samples = 3600 # number of samples equivament to 1h 
 data = load_data('tmp/b4b_msg_db.zip', start_sample, number_samples) # load selected portion of data 
 
 # PLOT some data
-chart_data = pd.DataFrame(data,columns=['awa[deg]', 'aws[kn]', 'esail_position[deg]'])
-chart_data['lasped_time'] = np.arange(0, chart_data.shape[0]*2,2) # add lapsed time column in second
-chart_data = chart_data.set_index('lasped_time')
+chart_data = pd.DataFrame(data,columns=['awa_deg','esail_pos_deg','sail_pos_target_deg','sail_pos_command_deg'])
 col1.line_chart(chart_data)
 
 # PLOT some data
-chart_data = pd.DataFrame(data,columns=['sog[kn]', 'flap_pos', 'heel[deg]'])
-chart_data['lasped_time'] = np.arange(0, chart_data.shape[0]*2,2) # add lapsed time column in second
-chart_data = chart_data.set_index('lasped_time')
+chart_data = pd.DataFrame(data,columns=['aws_kn','suction_speed_command_rpm','suction_speed_target_rpm','suction_speed_estimated_rpm'])
 col2.line_chart(chart_data)
 
 # PLOT some data
-chart_data = pd.DataFrame(data,columns=['currentavg[a]', 'power_cons[w]', 'activepowertotal[w]','mode'])
-chart_data['lasped_time'] = np.arange(0, chart_data.shape[0]*2,2) # add lapsed time column in second
-chart_data = chart_data.set_index('lasped_time')
+chart_data = pd.DataFrame(data,columns=['power_cons_kw', 'mean_current_a', 'current_state'])
 col1.line_chart(chart_data)
 
 # PLOT some data
-chart_data = pd.DataFrame(data,columns=['suctionfan[rpm]'])
-chart_data['lasped_time'] = np.arange(0, chart_data.shape[0]*2,2) # add lapsed time column in second
-chart_data = chart_data.set_index('lasped_time')
+chart_data = pd.DataFrame(data,columns=['aoa_deg','auto_mode_status','current_state'])
+col2.line_chart(chart_data)
+
+# PLOT some data
+chart_data = pd.DataFrame(data,columns=['heel_deg', 'sog_kn'])
+col1.line_chart(chart_data)
+
+# PLOT some data
+chart_data = pd.DataFrame(data,columns=['skin_press1_mbar', 'skin_press2_mbar', 'skin_press3_mbar', 'skin_press4_mbar', 'skin_press5_mbar', 'skin_press6_mbar', 'skin_press7_mbar'])
 col2.line_chart(chart_data)
