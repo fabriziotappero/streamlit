@@ -43,13 +43,12 @@ def get_gdrive_spreadsheet(doc_id, sheet_id, file_name):
     return df
 
 # download a google drive file
-#@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True)
 def get_gdrive_file(_id, file_name):
     print("loading gdrive file ID: ",_id)
     gdown.download('https://drive.google.com/uc?id=' + _id, file_name,quiet=True)
     
     
-
 ##### BEGIN OF THE CODE
 
 # use full width of the page
